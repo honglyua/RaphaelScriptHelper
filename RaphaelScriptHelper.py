@@ -1,6 +1,11 @@
 import ImageProc, ADBHelper, random, time, cv2
 import settings as st
 
+# support PC
+from PIL import ImageGrab
+import pyautogui
+
+# 0为PC环境，1为安卓设备
 deviceType = 1
 deviceID = ""
 
@@ -39,6 +44,15 @@ def touch(pos):
     else:
         ADBHelper.longTouch(deviceID, _pos, randTime)
 
+def touch_pc(x, y):
+    # 获取当前屏幕分辨率
+    screen_width, screen_height = pyautogui.size()
+    print("【当前屏幕分辨率】{0} * {1}".format(screen_width, screen_height))
+    # 将鼠标移动到(x, y)处并点击左键
+    print("【模拟点击】点击坐标 ({0},{1})".format(x, y))
+    pyautogui.moveTo(x, y)
+    pyautogui.click()
+
 # 智能模拟滑屏，给定起始点和终点的二元组，模拟一次随机智能滑屏
 def slide(vector):
     startPos, stopPos = vector
@@ -61,9 +75,34 @@ def find_pic(target, returnCenter = False):
         leftTopPos = ImageProc.locate(st.cache_path + "screenCap.png", target, st.accuracy)
         return leftTopPos
 
+# 截屏，识图，返回坐标
+def find_pic_pc(target, returnCenter = False):
+    screenshot = ImageGrab.grab()
+    full_path = st.cache_path + "screenCap.png"
+    screenshot.save(full_path)
+    print("【截图】已保存截图至", full_path)
+    time.sleep(0.1)
+    if returnCenter == True:
+        leftTopPos = ImageProc.locate(st.cache_path + "screenCap.png", target, st.accuracy)
+        img = cv2.imread(target)
+        centerPos = ImageProc.centerOfTouchArea(img.shape, leftTopPos)
+        return centerPos
+    else:
+        leftTopPos = ImageProc.locate(st.cache_path + "screenCap.png", target, st.accuracy)
+        return leftTopPos
+
 # 截屏，识图，返回所有坐标
 def find_pic_all(target):
     ADBHelper.screenCapture(deviceID, st.cache_path + "screenCap.png")
+    time.sleep(0.1)
+    leftTopPos = ImageProc.locate_all(st.cache_path + "screenCap.png", target, st.accuracy)
+    return leftTopPos
+
+def find_pic_all_pc(target):
+    screenshot = ImageGrab.grab()
+    full_path = st.cache_path + "screenCap.png"
+    screenshot.save(full_path)
+    print("【截图】已保存截图至", full_path)
     time.sleep(0.1)
     leftTopPos = ImageProc.locate_all(st.cache_path + "screenCap.png", target, st.accuracy)
     return leftTopPos
@@ -81,6 +120,23 @@ def find_pic_touch(target):
     x = random.randint(tlx, tlx + w_src)
     y = random.randint(tly, tly + h_src)
     touch((x, y))
+    return True
+
+def find_pic_touch_pc(target, touchCenter = False):
+    leftTopPos = find_pic_pc(target, touchCenter)
+    if leftTopPos is None:
+        print("【识图】识别 {0} 失败".format(target))
+        return False
+    print("【识图】识别 {0} 成功，图块左上角坐标 {1}".format(target, leftTopPos))
+    img = cv2.imread(target)
+    tlx, tly = leftTopPos
+    if touchCenter:
+        touch_pc(tlx, tly)
+    else:
+        h_src, w_src, tongdao = img.shape
+        x = random.randint(tlx, tlx + w_src)
+        y = random.randint(tly, tly + h_src)
+        touch_pc(x, y)
     return True
 
 # 寻找目标区块并将其拖动到某个位置
