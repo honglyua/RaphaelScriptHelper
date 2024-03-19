@@ -47,7 +47,6 @@ def touch(pos):
 def touch_pc(x, y):
     # 获取当前屏幕分辨率
     screen_width, screen_height = pyautogui.size()
-    print("【当前屏幕分辨率】{0} * {1}".format(screen_width, screen_height))
     # 将鼠标移动到(x, y)处并点击左键
     print("【模拟点击】点击坐标 ({0},{1})".format(x, y))
     pyautogui.moveTo(x, y)
@@ -89,6 +88,16 @@ def find_pic_pc(target, returnCenter = False):
         return centerPos
     else:
         leftTopPos = ImageProc.locate(st.cache_path + "screenCap.png", target, st.accuracy)
+        return leftTopPos
+
+def find_target_pic_pc(source, target, returnCenter = False):
+    if returnCenter == True:
+        leftTopPos = ImageProc.locate(source, target, st.accuracy)
+        img = cv2.imread(target)
+        centerPos = ImageProc.centerOfTouchArea(img.shape, leftTopPos)
+        return centerPos
+    else:
+        leftTopPos = ImageProc.locate(source, target, st.accuracy)
         return leftTopPos
 
 # 截屏，识图，返回所有坐标

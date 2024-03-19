@@ -38,6 +38,8 @@ def locate_all(source, wanted, accuracy=0.90):
 
 # 给定目标尺寸大小和目标左上角顶点坐标，即可给出目标中心的坐标
 def centerOfTouchArea(wantedSize, topLeftPos):
+    if not topLeftPos:
+        return None
     tlx, tly = topLeftPos
     h_src, w_src, tongdao = wantedSize
     if tlx < 0 or tly < 0 or w_src <=0 or h_src <= 0:

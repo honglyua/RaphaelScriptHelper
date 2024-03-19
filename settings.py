@@ -1,8 +1,10 @@
 #图片匹配置信度，0-1之间，默认0.93，如果匹配出错误目标则提高置信度，如果要模糊匹配或高置信度无法匹配则降低置信度
-accuracy = 0.93
+accuracy = 0.53
 
 #缓存文件存放地址，以/结尾
 cache_path = './cache/'
+
+qv_path = './img/'
 
 #随机延时范围[randomDelayMin,randomDelayMax]，单位秒
 randomDelayMin = 1
